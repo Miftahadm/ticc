@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TICC Course - Aplikasi Kursus Komputer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            background: linear-gradient(45deg, #2193b0, #6dd5ed);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #2c3e50;
+            border-left: 5px solid #2193b0;
+            padding-left: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #34495e;
+        }
+        input[type="text"], 
+        input[type="date"], 
+        textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #2193b0;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #6dd5ed;
+        }
+        .student-list {
+            margin: 20px 0;
+        }
+        .student-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+        .evaluation-section {
+            margin-top: 20px;
+        }
+        .question {
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 3px solid #2193b0;
+        }
+        .student-photo {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 2px solid #ddd;
+        }
+        .photo-placeholder {
+            width: 100px;
+            height: 100px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            border: 2px dashed #ccc;
+        }
+        .camera-container {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .camera-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TICC Course - Aplikasi Kursus Komputer</h1>
+        
+        <!-- Form RPK -->
+        <h2>Rencana Privat Komputer (RPK)</h2>
+        <div class="form-group">
+            <label>Nama Instruktur:</label>
+            <input type="text" id="instructorName" required>
+        </div>
+        <div class="form-group">
+            <label>Tanggal Pelaksanaan:</label>
+            <input type="date" id="courseDate" required>
+        </div>
+        <div class="form-group">
+            <label>Tujuan Pelatihan:</label>
+            <textarea id="courseObjective" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Materi/Modul:</label>
+            <textarea id="courseMaterial" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+            <label>Kegiatan Pelatihan:</label>
+            <textarea id="courseActivities" rows="3" required></textarea>
+        </div>
+        
+        <!-- Soal Evaluasi -->
+        <h2>Soal Evaluasi</h2>
+        <div id="questions">
+            <div class="question">
+                <div class="form-group">
+                    <label>Soal 1:</label>
+                    <input type="text" class="question-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Jawaban:</label>
+                    <input type="text" class="answer-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Bobot Nilai:</label>
+                    <input type="number" class="score-input" min="0" max="100" required>
+                </div>
+            </div>
+        </div>
+        <button onclick="addQuestion()">Tambah Soal</button>
+        
+        <!-- Daftar Peserta -->
+        <h2>Daftar Peserta</h2>
+        <div class="student-list">
+            <div class="student-item">
+                <div class="photo-placeholder" onclick="openCamera(this)">Klik untuk foto</div>
+                <input type="text" value="Ahmad" class="student-name" readonly>
+                <input type="number" class="student-score" placeholder="Nilai" min="0" max="100">
+            </div>
+            <div class="student-item">
+                <div class="photo-placeholder" onclick="openCamera(this)">Klik untuk foto</div>
+                <input type="text" value="Shofia" class="student-name" readonly>
+                <input type="number" class="student-score" placeholder="Nilai" min="0" max="100">
+            </div>
+            <div class="student-item">
+                <div class="photo-placeholder" onclick="openCamera(this)">Klik untuk foto</div>
+                <input type="text" value="Qosim" class="student-name" readonly>
+                <input type="number" class="student-score" placeholder="Nilai" min="0" max="100">
+            </div>
+        </div>
+        
+        <button onclick="addStudent()">Tambah Peserta</button>
+        <button onclick="generatePDF()">Generate PDF RPK & Evaluasi</button>
+        <button onclick="generateCertificates()">Generate Sertifikat PDF</button>
+        <button onclick="generateStudentListPDF()">PDF Peserta Privat</button>
+    </div>
+
+    <!-- Camera Modal -->
+    <div id="cameraModal" class="camera-container">
+        <div class="camera-content">
+            <video id="video" width="400" height="300" autoplay></video>
+            <canvas id="canvas" width="400" height="300" style="display: none;"></canvas>
+            <br>
+            <button onclick="takePhoto()">Ambil Foto</button>
+            <button onclick="closeCamera()">Tutup</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPhotoTarget = null;
+        let stream = null;
+
+        async function openCamera(placeholder) {
+            currentPhotoTarget = placeholder;
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('video');
+            
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+                modal.style.display = 'flex';
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Tidak dapat mengakses kamera');
+            }
+        }
+
+        function closeCamera() {
+            const modal = document.getElementById('cameraModal');
+            const video = document.getElementById('video');
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+            
+            video.srcObject = null;
+            modal.style.display = 'none';
+        }
+
+        function takePhoto() {
+            const video = document.getElementById('video');
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+            
+            context.drawImage(video, 0, 0, 400, 300);
+            
+            const photo = new Image();
+            photo.src = canvas.toDataURL('image/png');
+            photo.className = 'student-photo';
+            
+            currentPhotoTarget.parentNode.replaceChild(photo, currentPhotoTarget);
+            
+            closeCamera();
+        }
+
+        function addQuestion() {
+            const questionsDiv = document.getElementById('questions');
+            const newQuestion = document.createElement('div');
+            newQuestion.className = 'question';
+            newQuestion.innerHTML = `
+                <div class="form-group">
+                    <label>Soal ${questionsDiv.children.length + 1}:</label>
+                    <input type="text" class="question-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Jawaban:</label>
+                    <input type="text" class="answer-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Bobot Nilai:</label>
+                    <input type="number" class="score-input" min="0" max="100" required>
+                </div>
+            `;
+            questionsDiv.appendChild(newQuestion);
+        }
+
+        function addStudent() {
+            const studentList = document.querySelector('.student-list');
+            const newStudent = document.createElement('div');
+            newStudent.className = 'student-item';
+            newStudent.innerHTML = `
+                <div class="photo-placeholder" onclick="openCamera(this)">Klik untuk foto</div>
+                <input type="text" class="student-name" placeholder="Nama Peserta">
+                <input type="number" class="student-score" placeholder="Nilai" min="0" max="100">
+            `;
+            studentList.appendChild(newStudent);
+        }
+
+        function generatePDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            // Header
+            doc.setFontSize(20);
+            doc.setTextColor(33, 147, 176);
+            doc.text('Rencana Privat Komputer (RPK)', 105, 20, { align: 'center' });
+            
+            // RPK Content
+            doc.setFontSize(12);
+            doc.setTextColor(0);
+            
+            let yPos = 40;
+            
+            // Informasi Dasar
+            doc.text(`Instruktur: ${document.getElementById('instructorName').value}`, 20, yPos);
+            doc.text(`Tanggal: ${document.getElementById('courseDate').value}`, 20, yPos + 10);
+            
+            // Tujuan Pelatihan
+            yPos += 30;
+            doc.setFontSize(14);
+            doc.text('Tujuan Pelatihan:', 20, yPos);
+            doc.setFontSize(12);
+            const tujuan = doc.splitTextToSize(document.getElementById('courseObjective').value, 170);
+            doc.text(tujuan, 20, yPos + 10);
+            
+            // Materi/Modul
+            yPos += 30 + (tujuan.length * 7);
+            doc.setFontSize(14);
+            doc.text('Materi/Modul:', 20, yPos);
+            doc.setFontSize(12);
+            const materi = doc.splitTextToSize(document.getElementById('courseMaterial').value, 170);
+            doc.text(materi, 20, yPos + 10);
+            
+            // Kegiatan Pelatihan
+            yPos += 30 + (materi.length * 7);
+            doc.setFontSize(14);
+            doc.text('Kegiatan Pelatihan:', 20, yPos);
+            doc.setFontSize(12);
+            const kegiatan = doc.splitTextToSize(document.getElementById('courseActivities').value, 170);
+            doc.text(kegiatan, 20, yPos + 10);
+            
+            // Soal Evaluasi
+            doc.addPage();
+            doc.setFontSize(16);
+            doc.setTextColor(33, 147, 176);
+            doc.text('Soal Evaluasi', 105, 20, { align: 'center' });
+            
+            doc.setTextColor(0);
+            doc.setFontSize(12);
+            
+            const questions = document.querySelectorAll('.question');
+            yPos = 40;
+            
+            questions.forEach((q, index) => {
+                const questionText = q.querySelector('.question-input').value;
+                const answer = q.querySelector('.answer-input').value;
+                const score = q.querySelector('.score-input').value;
+                
+                if (yPos > 250) {
+                    doc.addPage();
+                    yPos = 20;
+                }
+                
+                doc.setFontSize(12);
+                doc.text(`Soal ${index + 1}:`, 20, yPos);
+                const qLines = doc.splitTextToSize(questionText, 170);
+                doc.text(qLines, 35, yPos + 7);
+                
+                yPos += 20 + (qLines.length * 7);
+                doc.text(`Jawaban: ${answer}`, 35, yPos);
+                doc.text(`Bobot Nilai: ${score}`, 35, yPos + 7);
+                
+                yPos += 20;
+            });
+            
+            doc.save('RPK_dan_Evaluasi.pdf');
+        }
+
+        function generateStudentListPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(20);
+            doc.setTextColor(33, 147, 176);
+            doc.text('Daftar Peserta Privat', 105, 20, { align: 'center' });
+            
+            let yPos = 40;
+            const students = document.querySelectorAll('.student-item');
+            
+            students.forEach((student, index) => {
+                const name = student.querySelector('.student-name').value;
+                const score
